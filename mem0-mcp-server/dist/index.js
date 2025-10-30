@@ -594,17 +594,27 @@ server.registerTool('delete_user', {
     }
 });
 // ============================================================================
-// Server Launch
+// Server Export (Smithery compatible)
 // ============================================================================
-async function main() {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    console.error('Mem0 MCP Server running on stdio');
-    console.error(`Organization: ${config.orgId || 'default'}`);
-    console.error(`Project: ${config.projectId || 'default'}`);
+// Export for Smithery platform
+export default function () {
+    return server;
 }
-main().catch((error) => {
-    console.error('Fatal error:', error);
-    process.exit(1);
-});
+// ============================================================================
+// Server Launch (for stdio/local use)
+// ============================================================================
+// Only run stdio transport if executed directly (not imported by Smithery)
+if (import.meta.url === `file://${process.argv[1]}`) {
+    async function main() {
+        const transport = new StdioServerTransport();
+        await server.connect(transport);
+        console.error('Mem0 MCP Server running on stdio');
+        console.error(`Organization: ${config.orgId || 'default'}`);
+        console.error(`Project: ${config.projectId || 'default'}`);
+    }
+    main().catch((error) => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+    });
+}
 //# sourceMappingURL=index.js.map

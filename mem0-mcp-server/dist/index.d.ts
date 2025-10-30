@@ -15,5 +15,6 @@
  *
  * Based on: https://docs.mem0.ai/api-reference
  */
-export {};
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+export default function (): McpServer;
 //# sourceMappingURL=index.d.ts.map
