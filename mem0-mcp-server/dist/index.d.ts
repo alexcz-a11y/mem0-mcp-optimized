@@ -15,6 +15,29 @@
  *
  * Based on: https://docs.mem0.ai/api-reference
  */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-export default function (): McpServer;
+export default function ({ config }?: {
+    config?: any;
+}): import("@modelcontextprotocol/sdk/server").Server<{
+    method: string;
+    params?: {
+        [x: string]: unknown;
+        _meta?: {
+            [x: string]: unknown;
+            progressToken?: string | number | undefined;
+        } | undefined;
+    } | undefined;
+}, {
+    method: string;
+    params?: {
+        [x: string]: unknown;
+        _meta?: {
+            [x: string]: unknown;
+        } | undefined;
+    } | undefined;
+}, {
+    [x: string]: unknown;
+    _meta?: {
+        [x: string]: unknown;
+    } | undefined;
+}>;
 //# sourceMappingURL=index.d.ts.map

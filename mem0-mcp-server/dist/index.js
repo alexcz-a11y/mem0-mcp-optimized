@@ -597,8 +597,11 @@ server.registerTool('delete_user', {
 // Server Export (Smithery compatible)
 // ============================================================================
 // Export for Smithery platform
-export default function () {
-    return server;
+// Accepts config from Smithery's configSchema
+export default function ({ config } = {}) {
+    // Config is provided by Smithery at runtime
+    // We use environment variables instead for API key management
+    return server.server;
 }
 // ============================================================================
 // Server Launch (for stdio/local use)
