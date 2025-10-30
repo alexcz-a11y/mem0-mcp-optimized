@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mem0": {
+      "command": "node",
+      "args": [
+        "/Users/alexnear/Documents/liquid- glass/mem0-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "MEM0_API_KEY": "your_api_key_here",
+        "MEM0_ORG_ID": "your_org_id",
+        "MEM0_PROJECT_ID": "your_project_id"
+      }
+    }
+  }
+}

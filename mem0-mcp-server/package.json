@@ -1,0 +1,49 @@
+{
+  "name": "@mem0/mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Mem0 Platform - Enterprise memory management for AI agents",
+  "author": "Mem0 MCP Contributors",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mem0-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mem0",
+    "memory",
+    "ai",
+    "llm",
+    "agent"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mem0ai/mem0-mcp-server"
+  },
+  "homepage": "https://mem0.ai",
+  "bugs": {
+    "url": "https://github.com/mem0ai/mem0-mcp-server/issues"
+  }
+}
