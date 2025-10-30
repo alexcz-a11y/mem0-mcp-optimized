@@ -1,33 +1,4 @@
 runtime: "typescript"
 
-startCommand:
-  type: "http"
-  configSchema:
-    type: "object"
-    required: ["apiKey"]
-    properties:
-      apiKey:
-        type: "string"
-        title: "Mem0 API Key"
-        description: "Your Mem0 Platform API key (get it from https://app.mem0.ai)"
-      orgId:
-        type: "string"
-        title: "Organization ID"
-        description: "Your Mem0 organization ID (optional)"
-      projectId:
-        type: "string"
-        title: "Project ID"
-        description: "Your Mem0 project ID (optional)"
-      baseUrl:
-        type: "string"
-        title: "Base URL"
-        description: "Mem0 API base URL"
-        default: "https://api.mem0.ai"
-  exampleConfig:
-    apiKey: "m0-your-api-key-here"
-    orgId: "org_your-org-id"
-    projectId: "proj_your-project-id"
-    baseUrl: "https://api.mem0.ai"
-
 env:
   NODE_ENV: "production"

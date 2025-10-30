@@ -15,7 +15,24 @@
  *
  * Based on: https://docs.mem0.ai/api-reference
  */
-export default function ({ config }?: {
+import { z } from 'zod';
+export declare const configSchema: z.ZodObject<{
+    apiKey: z.ZodString;
+    orgId: z.ZodOptional<z.ZodString>;
+    projectId: z.ZodOptional<z.ZodString>;
+    baseUrl: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+}, "strip", z.ZodTypeAny, {
+    apiKey: string;
+    baseUrl: string;
+    orgId?: string | undefined;
+    projectId?: string | undefined;
+}, {
+    apiKey: string;
+    orgId?: string | undefined;
+    projectId?: string | undefined;
+    baseUrl?: string | undefined;
+}>;
+export default function createServer({ config }?: {
     config?: any;
 }): import("@modelcontextprotocol/sdk/server").Server<{
     method: string;

@@ -17,8 +17,20 @@
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
 import { Mem0Client } from './mem0-client.js';
 import { AddMemoriesInputSchema, SearchMemoriesInputSchema, GetMemoriesInputSchema, UpdateMemoryInputSchema, DeleteMemoryInputSchema, FeedbackInputSchema, GetMemoryInputSchema, BatchUpdateMemoriesInputSchema, BatchDeleteMemoriesInputSchema, DeleteMemoriesByFilterInputSchema, CreateMemoryExportInputSchema, GetMemoryExportInputSchema, GetUsersInputSchema, DeleteUserInputSchema } from './types.js';
+// ============================================================================
+// Configuration Schema (Optional - for Smithery session config)
+// ============================================================================
+// Export configuration schema for Smithery
+// This allows users to configure the server per session
+export const configSchema = z.object({
+    apiKey: z.string().describe("Mem0 Platform API key (required)"),
+    orgId: z.string().optional().describe("Mem0 organization ID (optional)"),
+    projectId: z.string().optional().describe("Mem0 project ID (optional)"),
+    baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL")
+});
 // ============================================================================
 // Configuration
 // ============================================================================
@@ -598,9 +610,9 @@ server.registerTool('delete_user', {
 // ============================================================================
 // Export for Smithery platform
 // Accepts config from Smithery's configSchema
-export default function ({ config } = {}) {
-    // Config is provided by Smithery at runtime
-    // We use environment variables instead for API key management
+export default function createServer({ config } = {}) {
+    // Config is provided by Smithery at runtime via configSchema
+    // For now we use environment variables for API key management
     return server.server;
 }
 // ============================================================================
