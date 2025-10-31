@@ -1,0 +1,44 @@
+# Smithery Ignore File
+# Files and directories to exclude from Smithery deployment
+
+# Tests and test data
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Documentation
+*.md
+!README.md
+
+# Environment files
+.env*
+!.env.example
+
+# Build artifacts (Smithery builds from source)
+node_modules/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Examples and samples
+examples/
+
+# Misc
+.DS_Store
+Thumbs.db
