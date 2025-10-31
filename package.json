@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "prepare": "npm run build"
+    "prepare": "echo 'skip prepare in CI'"
   },
   "keywords": [
     "mcp",
