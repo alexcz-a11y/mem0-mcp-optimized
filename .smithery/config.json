@@ -1,0 +1,5 @@
+{
+  "runtime": "typescript",
+  "buildCommand": "npm run build",
+  "entry": "./src/index.ts"
+}

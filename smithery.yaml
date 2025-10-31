@@ -1,4 +1,6 @@
-runtime: "typescript"
+# Smithery TypeScript Runtime Configuration
+# This explicitly forces TypeScript runtime (NOT container/Docker)
+runtime: typescript
 
 env:
-  NODE_ENV: "production"
+  NODE_ENV: production
