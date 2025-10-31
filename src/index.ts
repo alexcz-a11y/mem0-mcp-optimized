@@ -48,7 +48,11 @@ export const configSchema = z.object({
   apiKey: z.string().describe("Mem0 Platform API key (required)"),
   orgId: z.string().optional().describe("Mem0 organization ID (optional)"),
   projectId: z.string().optional().describe("Mem0 project ID (optional)"),
-  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL")
+  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL"),
+  defaultUserId: z.string().optional().describe("Default user_id if none provided"),
+  defaultAgentId: z.string().optional().describe("Default agent_id if none provided"),
+  defaultAppId: z.string().optional().describe("Default app_id if none provided"),
+  defaultRunId: z.string().optional().describe("Default run_id if none provided")
 });
 
 // ============================================================================
@@ -56,7 +60,16 @@ export const configSchema = z.object({
 // =============================================================================
 
 let mem0!: Mem0Client;
-let lastConfig: { apiKey?: string; orgId?: string; projectId?: string; baseUrl?: string } | null = null;
+let lastConfig: {
+  apiKey?: string;
+  orgId?: string;
+  projectId?: string;
+  baseUrl?: string;
+  defaultUserId?: string;
+  defaultAgentId?: string;
+  defaultAppId?: string;
+  defaultRunId?: string;
+} | null = null;
 
 function ensureMem0() {
   if (!mem0) {
@@ -111,7 +124,17 @@ server.registerTool(
     try {
       ensureMem0();
       const validated = AddMemoriesInputSchema.parse(params);
-      const results = await mem0.addMemories(validated);
+      let payload: any = validated;
+      if (!validated.user_id && !validated.agent_id && !validated.app_id && !validated.run_id) {
+        const fallback =
+          (lastConfig && (lastConfig as any).defaultUserId) || process.env.MEM0_DEFAULT_USER_ID ||
+          (lastConfig && (lastConfig as any).defaultAgentId) || process.env.MEM0_DEFAULT_AGENT_ID ||
+          (lastConfig && (lastConfig as any).defaultAppId) || process.env.MEM0_DEFAULT_APP_ID ||
+          (lastConfig && (lastConfig as any).defaultRunId) || process.env.MEM0_DEFAULT_RUN_ID ||
+          'default';
+        payload = { ...validated, user_id: fallback };
+      }
+      const results = await mem0.addMemories(payload);
       
       const output = {
         results: results.map(r => ({
@@ -749,7 +772,7 @@ server.registerTool(
 
 // Export for Smithery platform
 // Accepts config from Smithery's configSchema
-export default function createServer({ config }: { config?: any } = {}) {
+export default function createServer({ config }: { config?: z.infer<typeof configSchema> } = {}) {
   // Capture Smithery-provided session config for lazy client init
   lastConfig = config ?? null;
   return server.server;
