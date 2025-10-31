@@ -941,6 +941,8 @@ server.registerResource('memory-stats', 'mem0://stats', {
 }, async (uri) => {
     try {
         ensureMem0();
+        // Log to diagnose if this is called during connection
+        console.error('[DEBUG] memory-stats resource accessed at', new Date().toISOString());
         // Get users/entities to provide stats
         const users = await mem0.getUsers({});
         const stats = {
@@ -1024,8 +1026,11 @@ server.registerResource('user-profile', new ResourceTemplate('mem0://users/{user
 // Export for Smithery platform
 // Accepts config from Smithery's configSchema
 export default function createServer({ config } = {}) {
+    const startTime = Date.now();
+    console.error('[DEBUG] createServer called at', new Date().toISOString());
     // Capture Smithery-provided session config for lazy client init
     lastConfig = config ?? null;
+    console.error('[DEBUG] Server initialization took', Date.now() - startTime, 'ms');
     return server.server;
 }
 // ============================================================================
