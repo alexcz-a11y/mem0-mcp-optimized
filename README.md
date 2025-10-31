@@ -1,5 +1,6 @@
 # Mem0 MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@alexcz-a11y/mem0-mcp-optimized)](https://smithery.ai/server/@alexcz-a11y/mem0-mcp-optimized)
 [![smithery badge](https://smithery.ai/badge/@mem0/mcp-server)](https://smithery.ai/server/@mem0/mcp-server)
 
 Enterprise-grade memory management for AI agents via the Model Context Protocol (MCP). Connects AI assistants to [Mem0 Platform](https://mem0.ai) for persistent, searchable, and contextual memory.
