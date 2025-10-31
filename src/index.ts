@@ -53,22 +53,26 @@ export const configSchema = z.object({
 
 // ============================================================================
 // Configuration
-// ============================================================================
+// =============================================================================
 
-const API_KEY = process.env.MEM0_API_KEY;
-if (!API_KEY) {
-  console.error('Error: MEM0_API_KEY environment variable is required');
-  process.exit(1);
+let mem0!: Mem0Client;
+let lastConfig: { apiKey?: string; orgId?: string; projectId?: string; baseUrl?: string } | null = null;
+
+function ensureMem0() {
+  if (!mem0) {
+    const c = lastConfig ?? {
+      apiKey: process.env.MEM0_API_KEY,
+      orgId: process.env.MEM0_ORG_ID,
+      projectId: process.env.MEM0_PROJECT_ID,
+      baseUrl: process.env.MEM0_BASE_URL
+    };
+    if (!c.apiKey) {
+      throw new Error('Missing apiKey. Configure a Test Profile (apiKey) or set MEM0_API_KEY');
+    }
+    mem0 = new Mem0Client(c as any);
+  }
+  return mem0;
 }
-
-const config = {
-  apiKey: API_KEY,
-  orgId: process.env.MEM0_ORG_ID,
-  projectId: process.env.MEM0_PROJECT_ID,
-  baseUrl: process.env.MEM0_BASE_URL
-};
-
-const mem0 = new Mem0Client(config);
 
 // ============================================================================
 // MCP Server Setup
@@ -105,6 +109,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = AddMemoriesInputSchema.parse(params);
       const results = await mem0.addMemories(validated);
       
@@ -159,6 +164,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = SearchMemoriesInputSchema.parse(params);
       const memories = await mem0.searchMemories(validated);
       
@@ -208,6 +214,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = GetMemoriesInputSchema.parse(params);
       const memories = await mem0.getMemories(validated);
       
@@ -255,6 +262,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = UpdateMemoryInputSchema.parse(params);
       const memory = await mem0.updateMemory(validated);
       
@@ -298,6 +306,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = DeleteMemoryInputSchema.parse(params);
       await mem0.deleteMemory(validated.memory_id);
       
@@ -343,6 +352,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = FeedbackInputSchema.parse(params);
       const result = await mem0.submitFeedback(validated);
       
@@ -387,6 +397,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = GetMemoryInputSchema.parse(params);
       const memory = await mem0.getMemory(validated.memory_id);
       
@@ -428,6 +439,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = BatchUpdateMemoriesInputSchema.parse(params);
       const memories = validated.memory_ids.map((id: string) => ({
         memory_id: id,
@@ -470,6 +482,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = BatchDeleteMemoriesInputSchema.parse(params);
       const result = await mem0.batchDeleteMemories(validated);
       return {
@@ -509,6 +522,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = DeleteMemoriesByFilterInputSchema.parse(params);
       const result = await mem0.deleteMemoriesByFilter(validated);
       
@@ -555,6 +569,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = CreateMemoryExportInputSchema.parse(params);
       // Ensure filters is provided
       if (!validated.filters) {
@@ -608,6 +623,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = GetMemoryExportInputSchema.parse(params);
       const result = await mem0.getMemoryExport(validated.export_id);
       
@@ -654,6 +670,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = GetUsersInputSchema.parse(params);
       const users = await mem0.getUsers(validated);
       
@@ -697,6 +714,7 @@ server.registerTool(
   },
   async (params) => {
     try {
+      ensureMem0();
       const validated = DeleteUserInputSchema.parse(params);
       await mem0.deleteUser(validated.user_id);
       
@@ -732,8 +750,8 @@ server.registerTool(
 // Export for Smithery platform
 // Accepts config from Smithery's configSchema
 export default function createServer({ config }: { config?: any } = {}) {
-  // Config is provided by Smithery at runtime via configSchema
-  // For now we use environment variables for API key management
+  // Capture Smithery-provided session config for lazy client init
+  lastConfig = config ?? null;
   return server.server;
 }
 
@@ -748,8 +766,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     await server.connect(transport);
     
     console.error('Mem0 MCP Server running on stdio');
-    console.error(`Organization: ${config.orgId || 'default'}`);
-    console.error(`Project: ${config.projectId || 'default'}`);
+    const org = (lastConfig && (lastConfig as any).orgId) || process.env.MEM0_ORG_ID || 'default';
+    const proj = (lastConfig && (lastConfig as any).projectId) || process.env.MEM0_PROJECT_ID || 'default';
+    console.error(`Organization: ${org}`);
+    console.error(`Project: ${proj}`);
   }
 
   main().catch((error) => {
