@@ -71,19 +71,36 @@ export class Mem0Client {
         });
     }
     /**
-     * Get Memories (v2 - no query, just filters)
-     * POST /v2/memories
-     * https://docs.mem0.ai/api-reference/memory/v2-get-memories
+     * Get Memories (v1 API - recommended for listing all memories)
+     * GET /v1/memories
+     * https://docs.mem0.ai/api-reference/memory/get-memories
      */
     async getMemories(params) {
-        const body = {
-            ...params,
-            org_id: params.org_id || this.orgId,
-            project_id: params.project_id || this.projectId
-        };
-        return this.request('/v2/memories/', {
-            method: 'POST',
-            body: JSON.stringify(body)
+        const queryParams = new URLSearchParams();
+        // Add entity identifiers
+        if (params.user_id)
+            queryParams.append('user_id', params.user_id);
+        if (params.agent_id)
+            queryParams.append('agent_id', params.agent_id);
+        if (params.app_id)
+            queryParams.append('app_id', params.app_id);
+        if (params.run_id)
+            queryParams.append('run_id', params.run_id);
+        // Add pagination
+        if (params.page)
+            queryParams.append('page', params.page.toString());
+        if (params.page_size)
+            queryParams.append('page_size', params.page_size.toString());
+        // Add org/project
+        if (params.org_id || this.orgId) {
+            queryParams.append('org_id', params.org_id || this.orgId);
+        }
+        if (params.project_id || this.projectId) {
+            queryParams.append('project_id', params.project_id || this.projectId);
+        }
+        const query = queryParams.toString();
+        return this.request(`/v1/memories/${query ? `?${query}` : ''}`, {
+            method: 'GET'
         });
     }
     /**

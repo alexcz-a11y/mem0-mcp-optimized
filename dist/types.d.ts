@@ -264,24 +264,30 @@ export declare const SearchMemoriesInputSchema: z.ZodObject<{
     fields?: string[] | undefined;
 }>;
 export declare const GetMemoriesInputSchema: z.ZodObject<{
-    filters: z.ZodRecord<z.ZodString, z.ZodAny>;
+    user_id: z.ZodOptional<z.ZodString>;
+    agent_id: z.ZodOptional<z.ZodString>;
+    app_id: z.ZodOptional<z.ZodString>;
+    run_id: z.ZodOptional<z.ZodString>;
     page: z.ZodDefault<z.ZodNumber>;
     page_size: z.ZodDefault<z.ZodNumber>;
-    fields: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     org_id: z.ZodOptional<z.ZodString>;
     project_id: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    filters: Record<string, any>;
     page: number;
     page_size: number;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
     org_id?: string | undefined;
     project_id?: string | undefined;
-    fields?: string[] | undefined;
 }, {
-    filters: Record<string, any>;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
     org_id?: string | undefined;
     project_id?: string | undefined;
-    fields?: string[] | undefined;
     page?: number | undefined;
     page_size?: number | undefined;
 }>;

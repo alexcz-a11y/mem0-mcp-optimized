@@ -50,18 +50,23 @@ export declare class Mem0Client {
         project_id?: string;
     }): Promise<Memory[]>;
     /**
-     * Get Memories (v2 - no query, just filters)
-     * POST /v2/memories
-     * https://docs.mem0.ai/api-reference/memory/v2-get-memories
+     * Get Memories (v1 API - recommended for listing all memories)
+     * GET /v1/memories
+     * https://docs.mem0.ai/api-reference/memory/get-memories
      */
     getMemories(params: {
-        filters: Record<string, any>;
+        user_id?: string;
+        agent_id?: string;
+        app_id?: string;
+        run_id?: string;
         page?: number;
         page_size?: number;
-        fields?: string[];
         org_id?: string;
         project_id?: string;
-    }): Promise<Memory[]>;
+    }): Promise<{
+        results: Memory[];
+        count: number;
+    }>;
     /**
      * Get Single Memory
      * GET /v1/memories/{memory_id}

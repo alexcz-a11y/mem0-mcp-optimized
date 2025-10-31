@@ -56,10 +56,12 @@ export const SearchMemoriesInputSchema = z.object({
     project_id: z.string().optional().describe('Project ID override')
 });
 export const GetMemoriesInputSchema = z.object({
-    filters: z.record(z.any()).describe('Filter criteria (required, non-empty). Supports AND/OR/NOT logic, comparison operators, and wildcard (*). Example: {"user_id": "alice"} or {"run_id": "*"}. See https://docs.mem0.ai/api-reference/memory/get-memories'),
+    user_id: z.string().optional().describe('Filter memories by user ID. Provide at least one of: user_id, agent_id, app_id, or run_id'),
+    agent_id: z.string().optional().describe('Filter memories by agent ID'),
+    app_id: z.string().optional().describe('Filter memories by application ID'),
+    run_id: z.string().optional().describe('Filter memories by run/session ID'),
     page: z.number().default(1).describe('Page number for pagination (default: 1)'),
     page_size: z.number().default(100).describe('Number of items per page (default: 100, max recommended: 100)'),
-    fields: z.array(z.string()).optional().describe('Specific fields to return (omit for all fields)'),
     org_id: z.string().optional().describe('Organization ID override'),
     project_id: z.string().optional().describe('Project ID override')
 });

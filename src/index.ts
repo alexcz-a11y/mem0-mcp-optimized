@@ -344,12 +344,14 @@ server.registerTool(
   'get_memories',
   {
     title: 'Get Memories',
-    description: 'List memories by filters without semantic search. Supports pagination and same filter syntax as search. Use for browsing by entity, date range, or metadata.',
+    description: 'List all memories with pagination. Provide at least one of: user_id, agent_id, app_id, or run_id. Defaults to defaultUserId if none provided.',
     inputSchema: {
-      filters: GetMemoriesInputSchema.shape.filters,
+      user_id: GetMemoriesInputSchema.shape.user_id,
+      agent_id: GetMemoriesInputSchema.shape.agent_id,
+      app_id: GetMemoriesInputSchema.shape.app_id,
+      run_id: GetMemoriesInputSchema.shape.run_id,
       page: GetMemoriesInputSchema.shape.page,
       page_size: GetMemoriesInputSchema.shape.page_size,
-      fields: GetMemoriesInputSchema.shape.fields,
       org_id: GetMemoriesInputSchema.shape.org_id,
       project_id: GetMemoriesInputSchema.shape.project_id
     },
@@ -363,18 +365,23 @@ server.registerTool(
     try {
       ensureMem0();
       const p: any = { ...params };
-      p.filters = parseMaybeJsonObject(p.filters);
       
-      // Smart filters handling (same as search_memories)
+      // Smart user_id handling
       const defaultUserId = getDefaultUserId();
       
-      if (p.filters && Object.keys(p.filters).length === 0) {
+      // If no entity ID provided, inject defaultUserId
+      if (!p.user_id && !p.agent_id && !p.app_id && !p.run_id) {
         if (defaultUserId) {
-          p.filters = { user_id: defaultUserId };
+          p.user_id = defaultUserId;
         }
-      } else if (p.filters?.user_id && isPlaceholderUserId(p.filters.user_id)) {
+      }
+      
+      // Replace placeholder user_id
+      if (p.user_id && isPlaceholderUserId(p.user_id)) {
         if (defaultUserId) {
-          p.filters.user_id = defaultUserId;
+          p.user_id = defaultUserId;
+        } else {
+          delete p.user_id; // Remove placeholder if no default
         }
       }
       
@@ -382,11 +389,11 @@ server.registerTool(
       // Let Mem0 API handle scope based on API key
       
       const validated = GetMemoriesInputSchema.parse(p);
-      const memories = await mem0.getMemories(validated);
+      const response = await mem0.getMemories(validated);
       
       const output = {
-        memories,
-        count: memories.length,
+        memories: response.results,
+        count: response.count,
         page: validated.page || 1,
         page_size: validated.page_size || 100
       };
@@ -1140,8 +1147,10 @@ server.registerResource(
   async (uri, { userId }) => {
     try {
       ensureMem0();
-      const memories = await mem0.getMemories({
-        filters: { user_id: userId },
+      // userId can be string or string[] from ResourceTemplate, use first value if array
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
+      const response = await mem0.getMemories({
+        user_id: userIdStr,
         page: 1,
         page_size: 10
       });
@@ -1152,8 +1161,8 @@ server.registerResource(
           mimeType: 'application/json',
           text: JSON.stringify({
             user_id: userId,
-            memory_count: memories.length,
-            recent_memories: memories.slice(0, 5).map(m => ({
+            memory_count: response.count,
+            recent_memories: response.results.slice(0, 5).map((m: any) => ({
               id: m.id,
               memory: m.memory,
               created_at: m.created_at
