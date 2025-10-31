@@ -66,8 +66,13 @@ npm run build
 ### Environment Variables
 
 ```bash
-# Required
+# Required - API Authentication
 MEM0_API_KEY=your_api_key_here
+
+# Required - Default User ID for memory scoping
+# This ensures all memories are properly associated with a user
+# Use your email, username, or any unique identifier
+MEM0_DEFAULT_USER_ID=user_123
 
 # Optional (for multi-tenant setup)
 MEM0_ORG_ID=your_org_id
@@ -78,6 +83,12 @@ MEM0_BASE_URL=https://api.mem0.ai
 ```
 
 Get your API key from [Mem0 Dashboard](https://app.mem0.ai/dashboard/api-keys).
+
+**Why is `defaultUserId` required?**
+- Mem0 requires all memories to be associated with a user/agent/app/run identifier
+- AI assistants don't automatically provide these identifiers
+- The `defaultUserId` acts as a fallback when the AI doesn't specify one
+- This prevents "missing identifier" errors and ensures smooth operation
 
 ### MCP Settings
 
@@ -93,6 +104,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "args": ["-y", "@mem0/mcp-server"],
       "env": {
         "MEM0_API_KEY": "your_api_key_here",
+        "MEM0_DEFAULT_USER_ID": "your_email@example.com",
         "MEM0_ORG_ID": "your_org_id",
         "MEM0_PROJECT_ID": "your_project_id"
       }
@@ -112,7 +124,8 @@ Add to Cursor settings (Settings > Features > MCP):
       "command": "npx",
       "args": ["-y", "@mem0/mcp-server"],
       "env": {
-        "MEM0_API_KEY": "your_api_key_here"
+        "MEM0_API_KEY": "your_api_key_here",
+        "MEM0_DEFAULT_USER_ID": "your_email@example.com"
       }
     }
   }
@@ -128,14 +141,16 @@ Add to Cursor settings (Settings > Features > MCP):
 Store new memories from conversations with metadata and optional graph extraction.
 
 **Parameters:**
-- `messages`: Array of `{role: 'user'|'assistant', content: string}`
-- `user_id`: (optional) User identifier
+- `messages`: Array of `{role: 'user'|'assistant', content: string}` (required)
+- `user_id`: (optional) User identifier - **auto-filled with `defaultUserId` if not provided**
 - `agent_id`: (optional) Agent identifier
 - `app_id`: (optional) Application identifier
 - `metadata`: (optional) Additional context
 - `enable_graph`: (optional) Enable graph memory (Pro)
 - `immutable`: (optional) Prevent future updates
 - `expiration_date`: (optional) YYYY-MM-DD format
+
+**Note:** At least one of `user_id`, `agent_id`, `app_id`, or `run_id` is required by Mem0. If the AI doesn't provide any, the configured `defaultUserId` is automatically used.
 
 **Example:**
 ```typescript

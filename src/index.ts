@@ -44,9 +44,10 @@ import {
 // ============================================================================
 
 // Export configuration schema for Smithery
-// All configuration is optional - can use environment variables as fallback
+// apiKey and defaultUserId are required for proper operation
 export const configSchema = z.object({
-  apiKey: z.string().optional().describe("Mem0 Platform API key (optional, defaults to MEM0_API_KEY env var)"),
+  apiKey: z.string().describe("Mem0 Platform API key (required). Get yours at https://app.mem0.ai/dashboard/api-keys"),
+  defaultUserId: z.string().describe("Default user ID for memory scoping (required). All memories will be associated with this user unless the AI explicitly provides a different user_id. Example: 'user_123' or your email"),
   orgId: z.string().optional().describe("Mem0 organization ID (optional, defaults to MEM0_ORG_ID env var)"),
   projectId: z.string().optional().describe("Mem0 project ID (optional, defaults to MEM0_PROJECT_ID env var)"),
   baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL (optional, defaults to https://api.mem0.ai)")
@@ -59,6 +60,7 @@ export const configSchema = z.object({
 let mem0!: Mem0Client;
 let lastConfig: {
   apiKey?: string;
+  defaultUserId?: string;
   orgId?: string;
   projectId?: string;
   baseUrl?: string;
@@ -148,6 +150,15 @@ server.registerTool(
       ensureMem0();
       const p: any = { ...params };
       p.messages = normalizeMessagesVal(p.messages);
+      
+      // Auto-inject defaultUserId if no owner identifier is provided
+      if (!p.user_id && !p.agent_id && !p.app_id && !p.run_id) {
+        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
+        if (defaultUserId) {
+          p.user_id = defaultUserId;
+        }
+      }
+      
       const validated = AddMemoriesInputSchema.parse(p);
       const results = await mem0.addMemories(validated);
       
@@ -210,6 +221,15 @@ server.registerTool(
       ensureMem0();
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
+      
+      // Auto-inject defaultUserId to filters if filters are empty or missing user identifier
+      if (p.filters && Object.keys(p.filters).length === 0) {
+        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
+        if (defaultUserId) {
+          p.filters = { user_id: defaultUserId };
+        }
+      }
+      
       const validated = SearchMemoriesInputSchema.parse(p);
       const memories = await mem0.searchMemories(validated);
       
@@ -267,6 +287,15 @@ server.registerTool(
       ensureMem0();
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
+      
+      // Auto-inject defaultUserId to filters if filters are empty
+      if (p.filters && Object.keys(p.filters).length === 0) {
+        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
+        if (defaultUserId) {
+          p.filters = { user_id: defaultUserId };
+        }
+      }
+      
       const validated = GetMemoriesInputSchema.parse(p);
       const memories = await mem0.getMemories(validated);
       
