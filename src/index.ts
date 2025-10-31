@@ -107,6 +107,25 @@ function getDefaultUserId(): string | undefined {
   return lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
 }
 
+// Helper: Auto-inject org_id and project_id from config if not provided by AI
+function injectOrgProjectIds(params: any): void {
+  // Auto-inject org_id if not provided
+  if (!params.org_id) {
+    const orgId = lastConfig?.orgId || process.env.MEM0_ORG_ID;
+    if (orgId) {
+      params.org_id = orgId;
+    }
+  }
+  
+  // Auto-inject project_id if not provided
+  if (!params.project_id) {
+    const projectId = lastConfig?.projectId || process.env.MEM0_PROJECT_ID;
+    if (projectId) {
+      params.project_id = projectId;
+    }
+  }
+}
+
 function formatZodError(err: any): string {
   if (err && err.name === 'ZodError' && Array.isArray((err as any).issues)) {
     const issues = (err as any).issues.map((i: any) => ({ path: i.path, message: i.message, code: i.code }));
@@ -195,6 +214,9 @@ server.registerTool(
         }
       }
       
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
+      
       const validated = AddMemoriesInputSchema.parse(p);
       const results = await mem0.addMemories(validated);
       
@@ -273,6 +295,9 @@ server.registerTool(
         }
       }
       
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
+      
       const validated = SearchMemoriesInputSchema.parse(p);
       const memories = await mem0.searchMemories(validated);
       
@@ -343,6 +368,9 @@ server.registerTool(
           p.filters.user_id = defaultUserId;
         }
       }
+      
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
       
       const validated = GetMemoriesInputSchema.parse(p);
       const memories = await mem0.getMemories(validated);
@@ -700,6 +728,10 @@ server.registerTool(
       ensureMem0();
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
+      
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
+      
       const validated = DeleteMemoriesByFilterInputSchema.parse(p);
       const result = await mem0.deleteMemoriesByFilter(validated);
       
@@ -754,6 +786,10 @@ server.registerTool(
       ensureMem0();
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
+      
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
+      
       const validated = CreateMemoryExportInputSchema.parse(p);
       // Ensure filters is provided
       if (!validated.filters) {
@@ -865,7 +901,12 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = GetUsersInputSchema.parse(params);
+      const p: any = { ...params };
+      
+      // Auto-inject org_id and project_id from config
+      injectOrgProjectIds(p);
+      
+      const validated = GetUsersInputSchema.parse(p);
       const users = await mem0.getUsers(validated);
       
       const output = {

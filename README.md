@@ -97,6 +97,12 @@ The server automatically replaces common placeholder values with your `defaultUs
 - If AI sends `user_id: "alice"` → kept as `"alice"` (specific value)
 - Detected placeholders: `user`, `your_user_id`, `user_id`, `userid`, `default`, `test`, `example`, `placeholder`
 
+**Auto-inject Configuration**
+Configuration values are automatically injected when AI doesn't provide them:
+- `orgId` → automatically added to all API calls if configured
+- `projectId` → automatically added to all API calls if configured
+- No need for AI to explicitly provide these values in tool calls
+
 ### MCP Settings
 
 #### Claude Desktop
