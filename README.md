@@ -1,5 +1,6 @@
 # Mem0 MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@alexcz-a11y/mem0-mcp-optimized)](https://smithery.ai/server/@alexcz-a11y/mem0-mcp-optimized)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue.svg)](https://modelcontextprotocol.io)
 
