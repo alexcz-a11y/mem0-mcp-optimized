@@ -11,6 +11,13 @@ export default {
     external: [
       // MCP SDK should be provided by Smithery runtime
       "@modelcontextprotocol/sdk",
+      // Smithery CLI bootstrap internals (avoid resolving during bundle)
+      "@smithery/sdk",
+      "@smithery/sdk/*",
+      "@smithery/sdk/server/stateful.js",
+      "@smithery/sdk/server/stateless.js",
+      // CLI pretty logging
+      "chalk",
       // Common native dependencies
       "@grpc/grpc-js",
       "sharp",
