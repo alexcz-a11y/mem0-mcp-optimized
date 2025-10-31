@@ -9,16 +9,13 @@ export default {
   esbuild: {
     // External dependencies that should not be bundled
     external: [
-      // MCP SDK should be provided by Smithery runtime
-      "@modelcontextprotocol/sdk",
-      // Smithery CLI bootstrap internals (avoid resolving during bundle)
+      // Smithery CLI bootstrap internals and logging
       "@smithery/sdk",
       "@smithery/sdk/*",
       "@smithery/sdk/server/stateful.js",
       "@smithery/sdk/server/stateless.js",
-      // CLI pretty logging
       "chalk",
-      // Common native dependencies
+      // Common native/heavy dependencies only
       "@grpc/grpc-js",
       "sharp",
       "playwright-core",
