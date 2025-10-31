@@ -1,5 +1,8 @@
 # Mem0 MCP Server
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue.svg)](https://modelcontextprotocol.io)
+
 [![smithery badge](https://smithery.ai/badge/@mem0/mcp-server)](https://smithery.ai/server/@mem0/mcp-server)
 
 Enterprise-grade memory management for AI agents via the Model Context Protocol (MCP). Connects AI assistants to [Mem0 Platform](https://mem0.ai) for persistent, searchable, and contextual memory.
@@ -20,11 +23,20 @@ Enterprise-grade memory management for AI agents via the Model Context Protocol 
 - 📦 **Export & Backup**: Create and download memory exports
 - 👥 **User Management**: List and manage users
 
+### Interactive Features
+- 💬 **Prompts** (2 templates): Guided memory creation and search with smart filters
+  - `add-memory`: Step-by-step memory addition with context
+  - `search-memories`: Build complex search queries with date ranges
+- 📊 **Resources** (2 endpoints): Real-time data access for AI assistants
+  - `mem0://stats`: Server statistics and entity overview
+  - `mem0://users/{userId}`: User-specific memory profiles
+
 ### Infrastructure
 - 🔐 **Multi-tenant**: Organization and project-level isolation
 - 🌐 **Graph Memory**: Enable relationship extraction (Pro feature)
-- ⚡ **Type Safety**: Zod validation on all inputs
-- 🛡️ **Error Handling**: Comprehensive error messages
+- ⚡ **Type Safety**: Zod validation on all inputs with detailed descriptions
+- 🛡️ **Error Handling**: Comprehensive error messages with examples
+- 📝 **Tool Annotations**: Read-only, destructive, and idempotent hints for all tools
 
 ## Installation
 
