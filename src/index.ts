@@ -22,6 +22,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { Mem0Client } from './mem0-client.js';
 import {
+  AddMemoriesInputCoreSchema,
   AddMemoriesInputSchema,
   SearchMemoriesInputSchema,
   GetMemoriesInputSchema,
@@ -48,11 +49,7 @@ export const configSchema = z.object({
   apiKey: z.string().describe("Mem0 Platform API key (required)"),
   orgId: z.string().optional().describe("Mem0 organization ID (optional)"),
   projectId: z.string().optional().describe("Mem0 project ID (optional)"),
-  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL"),
-  defaultUserId: z.string().optional().describe("Default user_id if none provided"),
-  defaultAgentId: z.string().optional().describe("Default agent_id if none provided"),
-  defaultAppId: z.string().optional().describe("Default app_id if none provided"),
-  defaultRunId: z.string().optional().describe("Default run_id if none provided")
+  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL")
 });
 
 // ============================================================================
@@ -65,10 +62,6 @@ let lastConfig: {
   orgId?: string;
   projectId?: string;
   baseUrl?: string;
-  defaultUserId?: string;
-  defaultAgentId?: string;
-  defaultAppId?: string;
-  defaultRunId?: string;
 } | null = null;
 
 function ensureMem0() {
@@ -106,35 +99,25 @@ server.registerTool(
     title: 'Add Memories',
     description: 'Store new memories from conversations. Supports v2 API with graph memory, metadata, and entity tracking. Returns memory IDs and extracted content.',
     inputSchema: {
-      messages: AddMemoriesInputSchema.shape.messages,
-      user_id: AddMemoriesInputSchema.shape.user_id,
-      agent_id: AddMemoriesInputSchema.shape.agent_id,
-      app_id: AddMemoriesInputSchema.shape.app_id,
-      run_id: AddMemoriesInputSchema.shape.run_id,
-      metadata: AddMemoriesInputSchema.shape.metadata,
-      enable_graph: AddMemoriesInputSchema.shape.enable_graph,
-      immutable: AddMemoriesInputSchema.shape.immutable,
-      expiration_date: AddMemoriesInputSchema.shape.expiration_date,
-      org_id: AddMemoriesInputSchema.shape.org_id,
-      project_id: AddMemoriesInputSchema.shape.project_id,
-      version: AddMemoriesInputSchema.shape.version
+      messages: AddMemoriesInputCoreSchema.shape.messages,
+      user_id: AddMemoriesInputCoreSchema.shape.user_id,
+      agent_id: AddMemoriesInputCoreSchema.shape.agent_id,
+      app_id: AddMemoriesInputCoreSchema.shape.app_id,
+      run_id: AddMemoriesInputCoreSchema.shape.run_id,
+      metadata: AddMemoriesInputCoreSchema.shape.metadata,
+      enable_graph: AddMemoriesInputCoreSchema.shape.enable_graph,
+      immutable: AddMemoriesInputCoreSchema.shape.immutable,
+      expiration_date: AddMemoriesInputCoreSchema.shape.expiration_date,
+      org_id: AddMemoriesInputCoreSchema.shape.org_id,
+      project_id: AddMemoriesInputCoreSchema.shape.project_id,
+      version: AddMemoriesInputCoreSchema.shape.version
     }
   },
   async (params) => {
     try {
       ensureMem0();
       const validated = AddMemoriesInputSchema.parse(params);
-      let payload: any = validated;
-      if (!validated.user_id && !validated.agent_id && !validated.app_id && !validated.run_id) {
-        const fallback =
-          (lastConfig && (lastConfig as any).defaultUserId) || process.env.MEM0_DEFAULT_USER_ID ||
-          (lastConfig && (lastConfig as any).defaultAgentId) || process.env.MEM0_DEFAULT_AGENT_ID ||
-          (lastConfig && (lastConfig as any).defaultAppId) || process.env.MEM0_DEFAULT_APP_ID ||
-          (lastConfig && (lastConfig as any).defaultRunId) || process.env.MEM0_DEFAULT_RUN_ID ||
-          'default';
-        payload = { ...validated, user_id: fallback };
-      }
-      const results = await mem0.addMemories(payload);
+      const results = await mem0.addMemories(validated);
       
       const output = {
         results: results.map(r => ({

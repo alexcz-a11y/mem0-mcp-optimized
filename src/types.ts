@@ -26,7 +26,7 @@ export const MessageSchema = z.object({
   content: z.string()
 });
 
-export const AddMemoriesInputSchema = z.object({
+export const AddMemoriesInputCoreSchema = z.object({
   messages: z.array(MessageSchema),
   user_id: z.string().optional(),
   agent_id: z.string().optional(),
@@ -39,6 +39,16 @@ export const AddMemoriesInputSchema = z.object({
   org_id: z.string().optional(),
   project_id: z.string().optional(),
   version: z.enum(['v1', 'v2']).default('v2')
+});
+
+export const AddMemoriesInputSchema = AddMemoriesInputCoreSchema.superRefine((val, ctx) => {
+  if (!val.user_id && !val.agent_id && !val.app_id && !val.run_id) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['user_id'],
+      message: 'At least one of user_id, agent_id, app_id, or run_id is required by Mem0 API'
+    });
+  }
 });
 
 export const SearchMemoriesInputSchema = z.object({
