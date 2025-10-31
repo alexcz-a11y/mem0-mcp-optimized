@@ -27,9 +27,6 @@ Enterprise-grade memory management for AI agents via the Model Context Protocol 
 - 💬 **Prompts** (2 templates): Guided memory creation and search with smart filters
   - `add-memory`: Step-by-step memory addition with context
   - `search-memories`: Build complex search queries with date ranges
-- 📊 **Resources** (2 endpoints): Real-time data access for AI assistants
-  - `mem0://stats`: Server statistics and entity overview
-  - `mem0://users/{userId}`: User-specific memory profiles
 
 ### Infrastructure
 - 🔐 **Multi-tenant**: Organization and project-level isolation
