@@ -70,6 +70,7 @@ function ensureMem0() {
   if (!mem0) {
     const c = lastConfig ?? {
       apiKey: process.env.MEM0_API_KEY,
+      defaultUserId: process.env.MEM0_DEFAULT_USER_ID,
       orgId: process.env.MEM0_ORG_ID,
       projectId: process.env.MEM0_PROJECT_ID,
       baseUrl: process.env.MEM0_BASE_URL
@@ -80,6 +81,30 @@ function ensureMem0() {
     mem0 = new Mem0Client(c as any);
   }
   return mem0;
+}
+
+// Helper: Check if a user_id is a placeholder/generic value that should be replaced
+function isPlaceholderUserId(userId: string | undefined): boolean {
+  if (!userId) return true;
+  
+  const placeholders = [
+    'user',
+    'your_user_id',
+    'user_id',
+    'userid',
+    'default',
+    'test',
+    'example',
+    'placeholder'
+  ];
+  
+  const normalized = userId.toLowerCase().trim();
+  return placeholders.includes(normalized);
+}
+
+// Helper: Get the default user ID from config or env
+function getDefaultUserId(): string | undefined {
+  return lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
 }
 
 function formatZodError(err: any): string {
@@ -151,9 +176,20 @@ server.registerTool(
       const p: any = { ...params };
       p.messages = normalizeMessagesVal(p.messages);
       
-      // Auto-inject defaultUserId if no owner identifier is provided
+      // Smart user_id handling:
+      // 1. If AI provided a placeholder value (like "user"), replace it with defaultUserId
+      // 2. If no owner identifier provided at all, inject defaultUserId
+      // 3. If AI provided a specific value (like "alice"), keep it
+      if (isPlaceholderUserId(p.user_id)) {
+        const defaultUserId = getDefaultUserId();
+        if (defaultUserId) {
+          p.user_id = defaultUserId;
+        }
+      }
+      
+      // Fallback: if still no owner identifier, try to inject defaultUserId
       if (!p.user_id && !p.agent_id && !p.app_id && !p.run_id) {
-        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
+        const defaultUserId = getDefaultUserId();
         if (defaultUserId) {
           p.user_id = defaultUserId;
         }
@@ -222,11 +258,18 @@ server.registerTool(
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
       
-      // Auto-inject defaultUserId to filters if filters are empty or missing user identifier
+      // Smart filters handling:
+      // 1. If filters are empty, inject defaultUserId
+      // 2. If filters contain a placeholder user_id (like "user"), replace it
+      const defaultUserId = getDefaultUserId();
+      
       if (p.filters && Object.keys(p.filters).length === 0) {
-        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
         if (defaultUserId) {
           p.filters = { user_id: defaultUserId };
+        }
+      } else if (p.filters?.user_id && isPlaceholderUserId(p.filters.user_id)) {
+        if (defaultUserId) {
+          p.filters.user_id = defaultUserId;
         }
       }
       
@@ -288,11 +331,16 @@ server.registerTool(
       const p: any = { ...params };
       p.filters = parseMaybeJsonObject(p.filters);
       
-      // Auto-inject defaultUserId to filters if filters are empty
+      // Smart filters handling (same as search_memories)
+      const defaultUserId = getDefaultUserId();
+      
       if (p.filters && Object.keys(p.filters).length === 0) {
-        const defaultUserId = lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
         if (defaultUserId) {
           p.filters = { user_id: defaultUserId };
+        }
+      } else if (p.filters?.user_id && isPlaceholderUserId(p.filters.user_id)) {
+        if (defaultUserId) {
+          p.filters.user_id = defaultUserId;
         }
       }
       

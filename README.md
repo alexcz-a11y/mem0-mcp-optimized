@@ -90,6 +90,13 @@ Get your API key from [Mem0 Dashboard](https://app.mem0.ai/dashboard/api-keys).
 - The `defaultUserId` acts as a fallback when the AI doesn't specify one
 - This prevents "missing identifier" errors and ensures smooth operation
 
+**Smart Placeholder Detection**
+The server automatically replaces common placeholder values with your `defaultUserId`:
+- If AI sends `user_id: "user"` → replaced with `defaultUserId: "alex"`
+- If AI sends `user_id: "your_user_id"` → replaced with `defaultUserId: "alex"`
+- If AI sends `user_id: "alice"` → kept as `"alice"` (specific value)
+- Detected placeholders: `user`, `your_user_id`, `user_id`, `userid`, `default`, `test`, `example`, `placeholder`
+
 ### MCP Settings
 
 #### Claude Desktop
