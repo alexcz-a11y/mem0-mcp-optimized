@@ -20,7 +20,7 @@ export declare const MessageSchema: z.ZodObject<{
     role: "user" | "assistant";
     content: string;
 }>;
-export declare const AddMemoriesInputSchema: z.ZodObject<{
+export declare const AddMemoriesInputCoreSchema: z.ZodObject<{
     messages: z.ZodArray<z.ZodObject<{
         role: z.ZodEnum<["user", "assistant"]>;
         content: z.ZodString;
@@ -39,6 +39,14 @@ export declare const AddMemoriesInputSchema: z.ZodObject<{
     enable_graph: z.ZodOptional<z.ZodBoolean>;
     immutable: z.ZodOptional<z.ZodBoolean>;
     expiration_date: z.ZodOptional<z.ZodString>;
+    includes: z.ZodOptional<z.ZodString>;
+    excludes: z.ZodOptional<z.ZodString>;
+    infer: z.ZodOptional<z.ZodBoolean>;
+    output_format: z.ZodOptional<z.ZodString>;
+    custom_categories: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    custom_instructions: z.ZodOptional<z.ZodString>;
+    async_mode: z.ZodOptional<z.ZodBoolean>;
+    timestamp: z.ZodOptional<z.ZodNumber>;
     org_id: z.ZodOptional<z.ZodString>;
     project_id: z.ZodOptional<z.ZodString>;
     version: z.ZodDefault<z.ZodEnum<["v1", "v2"]>>;
@@ -48,6 +56,7 @@ export declare const AddMemoriesInputSchema: z.ZodObject<{
         content: string;
     }[];
     version: "v1" | "v2";
+    includes?: string | undefined;
     user_id?: string | undefined;
     agent_id?: string | undefined;
     app_id?: string | undefined;
@@ -56,6 +65,13 @@ export declare const AddMemoriesInputSchema: z.ZodObject<{
     enable_graph?: boolean | undefined;
     immutable?: boolean | undefined;
     expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
     org_id?: string | undefined;
     project_id?: string | undefined;
 }, {
@@ -63,6 +79,7 @@ export declare const AddMemoriesInputSchema: z.ZodObject<{
         role: "user" | "assistant";
         content: string;
     }[];
+    includes?: string | undefined;
     user_id?: string | undefined;
     agent_id?: string | undefined;
     app_id?: string | undefined;
@@ -71,6 +88,140 @@ export declare const AddMemoriesInputSchema: z.ZodObject<{
     enable_graph?: boolean | undefined;
     immutable?: boolean | undefined;
     expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
+    org_id?: string | undefined;
+    project_id?: string | undefined;
+    version?: "v1" | "v2" | undefined;
+}>;
+export declare const AddMemoriesInputSchema: z.ZodEffects<z.ZodObject<{
+    messages: z.ZodArray<z.ZodObject<{
+        role: z.ZodEnum<["user", "assistant"]>;
+        content: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        role: "user" | "assistant";
+        content: string;
+    }, {
+        role: "user" | "assistant";
+        content: string;
+    }>, "many">;
+    user_id: z.ZodOptional<z.ZodString>;
+    agent_id: z.ZodOptional<z.ZodString>;
+    app_id: z.ZodOptional<z.ZodString>;
+    run_id: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    enable_graph: z.ZodOptional<z.ZodBoolean>;
+    immutable: z.ZodOptional<z.ZodBoolean>;
+    expiration_date: z.ZodOptional<z.ZodString>;
+    includes: z.ZodOptional<z.ZodString>;
+    excludes: z.ZodOptional<z.ZodString>;
+    infer: z.ZodOptional<z.ZodBoolean>;
+    output_format: z.ZodOptional<z.ZodString>;
+    custom_categories: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    custom_instructions: z.ZodOptional<z.ZodString>;
+    async_mode: z.ZodOptional<z.ZodBoolean>;
+    timestamp: z.ZodOptional<z.ZodNumber>;
+    org_id: z.ZodOptional<z.ZodString>;
+    project_id: z.ZodOptional<z.ZodString>;
+    version: z.ZodDefault<z.ZodEnum<["v1", "v2"]>>;
+}, "strip", z.ZodTypeAny, {
+    messages: {
+        role: "user" | "assistant";
+        content: string;
+    }[];
+    version: "v1" | "v2";
+    includes?: string | undefined;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
+    metadata?: Record<string, any> | undefined;
+    enable_graph?: boolean | undefined;
+    immutable?: boolean | undefined;
+    expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
+    org_id?: string | undefined;
+    project_id?: string | undefined;
+}, {
+    messages: {
+        role: "user" | "assistant";
+        content: string;
+    }[];
+    includes?: string | undefined;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
+    metadata?: Record<string, any> | undefined;
+    enable_graph?: boolean | undefined;
+    immutable?: boolean | undefined;
+    expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
+    org_id?: string | undefined;
+    project_id?: string | undefined;
+    version?: "v1" | "v2" | undefined;
+}>, {
+    messages: {
+        role: "user" | "assistant";
+        content: string;
+    }[];
+    version: "v1" | "v2";
+    includes?: string | undefined;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
+    metadata?: Record<string, any> | undefined;
+    enable_graph?: boolean | undefined;
+    immutable?: boolean | undefined;
+    expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
+    org_id?: string | undefined;
+    project_id?: string | undefined;
+}, {
+    messages: {
+        role: "user" | "assistant";
+        content: string;
+    }[];
+    includes?: string | undefined;
+    user_id?: string | undefined;
+    agent_id?: string | undefined;
+    app_id?: string | undefined;
+    run_id?: string | undefined;
+    metadata?: Record<string, any> | undefined;
+    enable_graph?: boolean | undefined;
+    immutable?: boolean | undefined;
+    expiration_date?: string | undefined;
+    excludes?: string | undefined;
+    infer?: boolean | undefined;
+    output_format?: string | undefined;
+    custom_categories?: Record<string, any> | undefined;
+    custom_instructions?: string | undefined;
+    async_mode?: boolean | undefined;
+    timestamp?: number | undefined;
     org_id?: string | undefined;
     project_id?: string | undefined;
     version?: "v1" | "v2" | undefined;
@@ -82,6 +233,8 @@ export declare const SearchMemoriesInputSchema: z.ZodObject<{
     top_k: z.ZodDefault<z.ZodNumber>;
     threshold: z.ZodDefault<z.ZodNumber>;
     rerank: z.ZodDefault<z.ZodBoolean>;
+    keyword_search: z.ZodOptional<z.ZodBoolean>;
+    filter_memories: z.ZodOptional<z.ZodBoolean>;
     fields: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     org_id: z.ZodOptional<z.ZodString>;
     project_id: z.ZodOptional<z.ZodString>;
@@ -94,6 +247,8 @@ export declare const SearchMemoriesInputSchema: z.ZodObject<{
     rerank: boolean;
     org_id?: string | undefined;
     project_id?: string | undefined;
+    keyword_search?: boolean | undefined;
+    filter_memories?: boolean | undefined;
     fields?: string[] | undefined;
 }, {
     query: string;
@@ -104,6 +259,8 @@ export declare const SearchMemoriesInputSchema: z.ZodObject<{
     top_k?: number | undefined;
     threshold?: number | undefined;
     rerank?: boolean | undefined;
+    keyword_search?: boolean | undefined;
+    filter_memories?: boolean | undefined;
     fields?: string[] | undefined;
 }>;
 export declare const GetMemoriesInputSchema: z.ZodObject<{

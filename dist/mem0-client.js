@@ -43,10 +43,15 @@ export class Mem0Client {
             project_id: params.project_id || this.projectId,
             version: params.version || 'v2'
         };
-        return this.request('/v1/memories/', {
+        const resp = await this.request('/v1/memories/', {
             method: 'POST',
             body: JSON.stringify(body)
         });
+        if (Array.isArray(resp))
+            return resp;
+        if (resp && Array.isArray(resp.results))
+            return resp.results;
+        return [];
     }
     /**
      * Search Memories (v2)
@@ -98,7 +103,7 @@ export class Mem0Client {
      */
     async updateMemory(params) {
         const { memory_id, ...body } = params;
-        return this.request(`/v1/memories/${memory_id}`, {
+        return this.request(`/v1/memories/${memory_id}/`, {
             method: 'PUT',
             body: JSON.stringify(body)
         });
@@ -109,7 +114,7 @@ export class Mem0Client {
      * https://docs.mem0.ai/api-reference/memory/delete-memory
      */
     async deleteMemory(memoryId) {
-        return this.request(`/v1/memories/${memoryId}`, {
+        return this.request(`/v1/memories/${memoryId}/`, {
             method: 'DELETE'
         });
     }

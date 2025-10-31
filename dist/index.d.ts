@@ -17,23 +17,23 @@
  */
 import { z } from 'zod';
 export declare const configSchema: z.ZodObject<{
-    apiKey: z.ZodString;
+    apiKey: z.ZodOptional<z.ZodString>;
     orgId: z.ZodOptional<z.ZodString>;
     projectId: z.ZodOptional<z.ZodString>;
     baseUrl: z.ZodDefault<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    apiKey: string;
     baseUrl: string;
+    apiKey?: string | undefined;
     orgId?: string | undefined;
     projectId?: string | undefined;
 }, {
-    apiKey: string;
+    apiKey?: string | undefined;
     orgId?: string | undefined;
     projectId?: string | undefined;
     baseUrl?: string | undefined;
 }>;
 export default function createServer({ config }?: {
-    config?: any;
+    config?: z.infer<typeof configSchema>;
 }): import("@modelcontextprotocol/sdk/server").Server<{
     method: string;
     params?: {

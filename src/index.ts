@@ -44,12 +44,12 @@ import {
 // ============================================================================
 
 // Export configuration schema for Smithery
-// This allows users to configure the server per session
+// All configuration is optional - can use environment variables as fallback
 export const configSchema = z.object({
-  apiKey: z.string().describe("Mem0 Platform API key (required)"),
-  orgId: z.string().optional().describe("Mem0 organization ID (optional)"),
-  projectId: z.string().optional().describe("Mem0 project ID (optional)"),
-  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL")
+  apiKey: z.string().optional().describe("Mem0 Platform API key (optional, defaults to MEM0_API_KEY env var)"),
+  orgId: z.string().optional().describe("Mem0 organization ID (optional, defaults to MEM0_ORG_ID env var)"),
+  projectId: z.string().optional().describe("Mem0 project ID (optional, defaults to MEM0_PROJECT_ID env var)"),
+  baseUrl: z.string().optional().default("https://api.mem0.ai").describe("Mem0 API base URL (optional, defaults to https://api.mem0.ai)")
 });
 
 // ============================================================================
@@ -73,7 +73,7 @@ function ensureMem0() {
       baseUrl: process.env.MEM0_BASE_URL
     };
     if (!c.apiKey) {
-      throw new Error('Missing apiKey. Configure a Test Profile (apiKey) or set MEM0_API_KEY');
+      throw new Error('Mem0 API key required. Set MEM0_API_KEY environment variable or provide apiKey in session config. Get your API key at https://app.mem0.ai');
     }
     mem0 = new Mem0Client(c as any);
   }
@@ -136,6 +136,11 @@ server.registerTool(
       org_id: AddMemoriesInputCoreSchema.shape.org_id,
       project_id: AddMemoriesInputCoreSchema.shape.project_id,
       version: AddMemoriesInputCoreSchema.shape.version
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false
     }
   },
   async (params) => {
@@ -193,6 +198,11 @@ server.registerTool(
       fields: SearchMemoriesInputSchema.shape.fields,
       org_id: SearchMemoriesInputSchema.shape.org_id,
       project_id: SearchMemoriesInputSchema.shape.project_id
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -245,6 +255,11 @@ server.registerTool(
       fields: GetMemoriesInputSchema.shape.fields,
       org_id: GetMemoriesInputSchema.shape.org_id,
       project_id: GetMemoriesInputSchema.shape.project_id
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -295,6 +310,11 @@ server.registerTool(
       memory_id: UpdateMemoryInputSchema.shape.memory_id,
       text: UpdateMemoryInputSchema.shape.text,
       metadata: UpdateMemoryInputSchema.shape.metadata
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -339,6 +359,11 @@ server.registerTool(
     description: 'Permanently delete a memory by ID. Cannot be undone.',
     inputSchema: {
       memory_id: DeleteMemoryInputSchema.shape.memory_id
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -385,6 +410,11 @@ server.registerTool(
       memory_id: FeedbackInputSchema.shape.memory_id,
       feedback: FeedbackInputSchema.shape.feedback,
       feedback_reason: FeedbackInputSchema.shape.feedback_reason
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false
     }
   },
   async (params) => {
@@ -430,6 +460,11 @@ server.registerTool(
     description: 'Retrieve a single memory by its UUID. Returns full memory details including metadata, categories, and timestamps.',
     inputSchema: {
       memory_id: GetMemoryInputSchema.shape.memory_id
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -472,6 +507,11 @@ server.registerTool(
     inputSchema: {
       memory_ids: BatchUpdateMemoriesInputSchema.shape.memory_ids,
       metadata: BatchUpdateMemoriesInputSchema.shape.metadata
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -526,6 +566,11 @@ server.registerTool(
     description: 'Delete multiple memories by their UUIDs. Cannot be undone.',
     inputSchema: {
       memory_ids: BatchDeleteMemoriesInputSchema.shape.memory_ids
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -566,6 +611,11 @@ server.registerTool(
       filters: DeleteMemoriesByFilterInputSchema.shape.filters,
       org_id: DeleteMemoriesByFilterInputSchema.shape.org_id,
       project_id: DeleteMemoriesByFilterInputSchema.shape.project_id
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -615,6 +665,11 @@ server.registerTool(
       filters: CreateMemoryExportInputSchema.shape.filters,
       org_id: CreateMemoryExportInputSchema.shape.org_id,
       project_id: CreateMemoryExportInputSchema.shape.project_id
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false
     }
   },
   async (params) => {
@@ -671,6 +726,11 @@ server.registerTool(
     description: 'Check export status and get download URL when ready.',
     inputSchema: {
       export_id: GetMemoryExportInputSchema.shape.export_id
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -718,6 +778,11 @@ server.registerTool(
     inputSchema: {
       org_id: GetUsersInputSchema.shape.org_id,
       project_id: GetUsersInputSchema.shape.project_id
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -762,6 +827,11 @@ server.registerTool(
     description: 'Delete a user and all their associated memories. Cannot be undone.',
     inputSchema: {
       user_id: DeleteUserInputSchema.shape.user_id
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true
     }
   },
   async (params) => {
@@ -790,6 +860,190 @@ server.registerTool(
           text: `Error deleting user: ${errorMsg}`
         }],
         isError: true
+      };
+    }
+  }
+);
+
+// ============================================================================
+// Prompts - Help users with common tasks
+// ============================================================================
+
+server.registerPrompt(
+  'add-memory',
+  {
+    title: 'Add Memory',
+    description: 'Create a new memory from a conversation. Guides you through adding user/agent messages with proper scoping.',
+    argsSchema: {
+      content: z.string().describe('The content to remember'),
+      user_id: z.string().optional().describe('User identifier (required unless using agent_id/app_id/run_id)'),
+      agent_id: z.string().optional().describe('Agent identifier (optional)'),
+      context: z.string().optional().describe('Additional context about when/why this memory was created')
+    }
+  },
+  ({ content, user_id, agent_id, context }) => {
+    const userIdPart = user_id || 'your_user_id';
+    const agentPart = agent_id ? `, agent_id: "${agent_id}"` : '';
+    const ctxNote = context ? `\n\nContext: ${context}` : '';
+    
+    return {
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Please add this memory to Mem0:\n\n"${content}"${ctxNote}\n\nUse tool: add_memories with:\n- messages: [{"role": "user", "content": "${content}"}]\n- user_id: "${userIdPart}"${agentPart}`
+          }
+        }
+      ]
+    };
+  }
+);
+
+server.registerPrompt(
+  'search-memories',
+  {
+    title: 'Search Memories',
+    description: 'Search for relevant memories using natural language. Helps construct proper search queries with filters.',
+    argsSchema: {
+      query: z.string().describe('What to search for (natural language)'),
+      user_id: z.string().optional().describe('Filter by user ID'),
+      agent_id: z.string().optional().describe('Filter by agent ID'),
+      date_from: z.string().optional().describe('Filter from date (YYYY-MM-DD)'),
+      date_to: z.string().optional().describe('Filter to date (YYYY-MM-DD)')
+    }
+  },
+  ({ query, user_id, agent_id, date_from, date_to }) => {
+    let filters = '{}';
+    const conditions = [];
+    if (user_id) conditions.push(`{"user_id": "${user_id}"}`);
+    if (agent_id) conditions.push(`{"agent_id": "${agent_id}"}`);
+    if (date_from || date_to) {
+      const dateFilter: any = {};
+      if (date_from) dateFilter.gte = date_from;
+      if (date_to) dateFilter.lte = date_to;
+      conditions.push(`{"created_at": ${JSON.stringify(dateFilter)}}`);
+    }
+    
+    if (conditions.length > 0) {
+      if (conditions.length === 1) {
+        filters = conditions[0];
+      } else {
+        filters = `{"AND": [${conditions.join(', ')}]}`;
+      }
+    } else {
+      filters = `{"user_id": "your_user_id"}`;
+    }
+    
+    return {
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Search memories for: "${query}"\n\nUse tool: search_memories with:\n- query: "${query}"\n- filters: ${filters}\n- top_k: 10`
+          }
+        }
+      ]
+    };
+  }
+);
+
+// ============================================================================
+// Resources - Expose data for AI access
+// ============================================================================
+
+import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
+
+server.registerResource(
+  'memory-stats',
+  'mem0://stats',
+  {
+    title: 'Memory Statistics',
+    description: 'Overview of memory counts and usage statistics',
+    mimeType: 'application/json'
+  },
+  async (uri) => {
+    try {
+      ensureMem0();
+      // Get users/entities to provide stats
+      const users = await mem0.getUsers({});
+      const stats = {
+        total_entities: users.length,
+        entity_types: users.reduce((acc: Record<string, number>, u) => {
+          acc[u.type] = (acc[u.type] || 0) + 1;
+          return acc;
+        }, {}),
+        server_info: {
+          name: 'Mem0 MCP Server',
+          version: '1.0.0',
+          capabilities: ['add', 'search', 'get', 'update', 'delete', 'batch_ops', 'export', 'feedback']
+        }
+      };
+      
+      return {
+        contents: [{
+          uri: uri.href,
+          mimeType: 'application/json',
+          text: JSON.stringify(stats, null, 2)
+        }]
+      };
+    } catch (error) {
+      return {
+        contents: [{
+          uri: uri.href,
+          mimeType: 'application/json',
+          text: JSON.stringify({
+            error: error instanceof Error ? error.message : 'Failed to fetch stats',
+            note: 'Ensure API key is configured'
+          }, null, 2)
+        }]
+      };
+    }
+  }
+);
+
+server.registerResource(
+  'user-profile',
+  new ResourceTemplate('mem0://users/{userId}', { list: undefined }),
+  {
+    title: 'User Memory Profile',
+    description: 'Get memories for a specific user'
+  },
+  async (uri, { userId }) => {
+    try {
+      ensureMem0();
+      const memories = await mem0.getMemories({
+        filters: { user_id: userId },
+        page: 1,
+        page_size: 10
+      });
+      
+      return {
+        contents: [{
+          uri: uri.href,
+          mimeType: 'application/json',
+          text: JSON.stringify({
+            user_id: userId,
+            memory_count: memories.length,
+            recent_memories: memories.slice(0, 5).map(m => ({
+              id: m.id,
+              memory: m.memory,
+              created_at: m.created_at
+            }))
+          }, null, 2)
+        }]
+      };
+    } catch (error) {
+      return {
+        contents: [{
+          uri: uri.href,
+          mimeType: 'application/json',
+          text: JSON.stringify({
+            user_id: userId,
+            error: error instanceof Error ? error.message : 'Failed to fetch user memories'
+          }, null, 2)
+        }]
       };
     }
   }

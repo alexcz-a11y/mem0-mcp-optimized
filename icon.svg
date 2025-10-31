@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="memGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#memGradient)"/>
+  
+  <!-- Memory icon - brain/neural network style -->
+  <g transform="translate(256,256)">
+    <!-- Central node -->
+    <circle cx="0" cy="0" r="30" fill="#fff" opacity="0.9"/>
+    
+    <!-- Neural connections -->
+    <g stroke="#fff" stroke-width="6" fill="none" opacity="0.7">
+      <path d="M 0,-30 Q -40,-60 -60,-90"/>
+      <path d="M 0,-30 Q 0,-70 0,-100"/>
+      <path d="M 0,-30 Q 40,-60 60,-90"/>
+      
+      <path d="M -21,-21 Q -70,-50 -100,-60"/>
+      <path d="M 21,-21 Q 70,-50 100,-60"/>
+      
+      <path d="M -30,0 Q -60,-10 -100,0"/>
+      <path d="M 30,0 Q 60,-10 100,0"/>
+      
+      <path d="M -21,21 Q -70,50 -100,60"/>
+      <path d="M 21,21 Q 70,50 100,60"/>
+      
+      <path d="M 0,30 Q -40,60 -60,90"/>
+      <path d="M 0,30 Q 0,70 0,100"/>
+      <path d="M 0,30 Q 40,60 60,90"/>
+    </g>
+    
+    <!-- Outer nodes -->
+    <circle cx="-60" cy="-90" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="0" cy="-100" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="60" cy="-90" r="18" fill="#fff" opacity="0.85"/>
+    
+    <circle cx="-100" cy="-60" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="100" cy="-60" r="18" fill="#fff" opacity="0.85"/>
+    
+    <circle cx="-100" cy="0" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="100" cy="0" r="18" fill="#fff" opacity="0.85"/>
+    
+    <circle cx="-100" cy="60" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="100" cy="60" r="18" fill="#fff" opacity="0.85"/>
+    
+    <circle cx="-60" cy="90" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="0" cy="100" r="18" fill="#fff" opacity="0.85"/>
+    <circle cx="60" cy="90" r="18" fill="#fff" opacity="0.85"/>
+    
+    <!-- Central highlight -->
+    <circle cx="-8" cy="-8" r="8" fill="#fff" opacity="0.5"/>
+  </g>
+  
+  <!-- Mem0 text (optional, can be removed for cleaner look) -->
+  <text x="256" y="460" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#fff" text-anchor="middle" opacity="0.9">Mem0</text>
+</svg>
