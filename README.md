@@ -1,5 +1,6 @@
 # Mem0 MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@alexcz-a11y/mem0-mcp-optimized)](https://smithery.ai/server/@alexcz-a11y/mem0-mcp-optimized)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue.svg)](https://modelcontextprotocol.io)
 
@@ -27,6 +28,9 @@ Enterprise-grade memory management for AI agents via the Model Context Protocol 
 - 💬 **Prompts** (2 templates): Guided memory creation and search with smart filters
   - `add-memory`: Step-by-step memory addition with context
   - `search-memories`: Build complex search queries with date ranges
+- 📊 **Resources** (2 endpoints): Real-time data access for AI assistants
+  - `mem0://stats`: Server statistics and entity overview
+  - `mem0://users/{userId}`: User-specific memory profiles
 
 ### Infrastructure
 - 🔐 **Multi-tenant**: Organization and project-level isolation
