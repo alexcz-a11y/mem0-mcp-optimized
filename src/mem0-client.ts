@@ -77,10 +77,13 @@ export class Mem0Client {
       version: params.version || 'v2'
     };
 
-    return this.request<AddMemoryResponse[]>('/v1/memories/', {
+    const resp = await this.request<any>('/v1/memories/', {
       method: 'POST',
       body: JSON.stringify(body)
     });
+    if (Array.isArray(resp)) return resp as AddMemoryResponse[];
+    if (resp && Array.isArray(resp.results)) return resp.results as AddMemoryResponse[];
+    return [] as AddMemoryResponse[];
   }
 
   /**
@@ -159,7 +162,7 @@ export class Mem0Client {
     metadata?: Record<string, any>;
   }): Promise<Memory> {
     const { memory_id, ...body } = params;
-    return this.request<Memory>(`/v1/memories/${memory_id}`, {
+    return this.request<Memory>(`/v1/memories/${memory_id}/`, {
       method: 'PUT',
       body: JSON.stringify(body)
     });
@@ -171,7 +174,7 @@ export class Mem0Client {
    * https://docs.mem0.ai/api-reference/memory/delete-memory
    */
   async deleteMemory(memoryId: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/v1/memories/${memoryId}`, {
+    return this.request<{ success: boolean }>(`/v1/memories/${memoryId}/`, {
       method: 'DELETE'
     });
   }

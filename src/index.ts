@@ -80,6 +80,31 @@ function ensureMem0() {
   return mem0;
 }
 
+function formatZodError(err: any): string {
+  if (err && err.name === 'ZodError' && Array.isArray((err as any).issues)) {
+    const issues = (err as any).issues.map((i: any) => ({ path: i.path, message: i.message, code: i.code }));
+    return `Invalid arguments: ${JSON.stringify(issues)}`;
+  }
+  return err instanceof Error ? err.message : String(err);
+}
+
+function parseMaybeJsonObject(val: any) {
+  if (typeof val === 'string') {
+    try {
+      const o = JSON.parse(val);
+      if (o && typeof o === 'object') return o;
+    } catch {}
+  }
+  return val;
+}
+
+function normalizeMessagesVal(messages: any) {
+  if (typeof messages === 'string') return [{ role: 'user', content: messages }];
+  if (Array.isArray(messages)) return messages.map((m: any) => (typeof m === 'string' ? { role: 'user', content: m } : m));
+  if (messages && typeof messages === 'object' && 'content' in messages) return [messages];
+  return messages;
+}
+
 // ============================================================================
 // MCP Server Setup
 // ============================================================================
@@ -116,7 +141,9 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = AddMemoriesInputSchema.parse(params);
+      const p: any = { ...params };
+      p.messages = normalizeMessagesVal(p.messages);
+      const validated = AddMemoriesInputSchema.parse(p);
       const results = await mem0.addMemories(validated);
       
       const output = {
@@ -136,7 +163,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -171,7 +198,9 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = SearchMemoriesInputSchema.parse(params);
+      const p: any = { ...params };
+      p.filters = parseMaybeJsonObject(p.filters);
+      const validated = SearchMemoriesInputSchema.parse(p);
       const memories = await mem0.searchMemories(validated);
       
       const output = {
@@ -188,7 +217,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -221,7 +250,9 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = GetMemoriesInputSchema.parse(params);
+      const p: any = { ...params };
+      p.filters = parseMaybeJsonObject(p.filters);
+      const validated = GetMemoriesInputSchema.parse(p);
       const memories = await mem0.getMemories(validated);
       
       const output = {
@@ -239,7 +270,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -285,7 +316,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -329,7 +360,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -376,7 +407,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -417,7 +448,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -446,22 +477,33 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = BatchUpdateMemoriesInputSchema.parse(params);
-      const memories = validated.memory_ids.map((id: string) => ({
-        memory_id: id,
-        text: 'Updated',
-        metadata: validated.metadata
-      }));
-      const result = await mem0.batchUpdateMemories({ memories });
+      const AltSchema = z.object({
+        memories: z.array(z.object({
+          memory_id: z.string().uuid(),
+          text: z.string().optional(),
+          metadata: z.record(z.any()).optional()
+        }))
+      });
+      let payload: { memories: Array<{ memory_id: string; text?: string; metadata?: Record<string, any> }>};
+      if ((params as any).memories) {
+        const s = AltSchema.parse({ memories: (params as any).memories });
+        payload = s;
+      } else {
+        const validated = BatchUpdateMemoriesInputSchema.parse(params);
+        payload = {
+          memories: validated.memory_ids.map((id: string) => ({ memory_id: id, metadata: validated.metadata }))
+        };
+      }
+      const result = await mem0.batchUpdateMemories(payload);
       return {
         content: [{ type: 'text', text: JSON.stringify({
           message: result.message,
-          memory_ids: validated.memory_ids,
+          memory_ids: payload.memories.map(m => m.memory_id),
           status: 'success'
         }, null, 2) }]
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -499,7 +541,7 @@ server.registerTool(
         }, null, 2) }]
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -529,7 +571,9 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = DeleteMemoriesByFilterInputSchema.parse(params);
+      const p: any = { ...params };
+      p.filters = parseMaybeJsonObject(p.filters);
+      const validated = DeleteMemoriesByFilterInputSchema.parse(p);
       const result = await mem0.deleteMemoriesByFilter(validated);
       
       const output = {
@@ -546,7 +590,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -576,7 +620,9 @@ server.registerTool(
   async (params) => {
     try {
       ensureMem0();
-      const validated = CreateMemoryExportInputSchema.parse(params);
+      const p: any = { ...params };
+      p.filters = parseMaybeJsonObject(p.filters);
+      const validated = CreateMemoryExportInputSchema.parse(p);
       // Ensure filters is provided
       if (!validated.filters) {
         throw new Error('filters parameter is required');
@@ -602,7 +648,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -648,7 +694,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -693,7 +739,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',
@@ -737,7 +783,7 @@ server.registerTool(
         structuredContent: output
       };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = formatZodError(error);
       return {
         content: [{
           type: 'text',

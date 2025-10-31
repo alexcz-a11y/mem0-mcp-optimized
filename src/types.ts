@@ -36,6 +36,14 @@ export const AddMemoriesInputCoreSchema = z.object({
   enable_graph: z.boolean().optional(),
   immutable: z.boolean().optional(),
   expiration_date: z.string().optional(), // YYYY-MM-DD
+  includes: z.string().optional(),
+  excludes: z.string().optional(),
+  infer: z.boolean().optional(),
+  output_format: z.string().optional(),
+  custom_categories: z.record(z.any()).optional(),
+  custom_instructions: z.string().optional(),
+  async_mode: z.boolean().optional(),
+  timestamp: z.number().optional(),
   org_id: z.string().optional(),
   project_id: z.string().optional(),
   version: z.enum(['v1', 'v2']).default('v2')
@@ -58,6 +66,8 @@ export const SearchMemoriesInputSchema = z.object({
   top_k: z.number().default(10),
   threshold: z.number().default(0.3),
   rerank: z.boolean().default(false),
+  keyword_search: z.boolean().optional(),
+  filter_memories: z.boolean().optional(),
   fields: z.array(z.string()).optional(),
   org_id: z.string().optional(),
   project_id: z.string().optional()
