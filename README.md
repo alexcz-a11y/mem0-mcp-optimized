@@ -98,10 +98,10 @@ The server automatically replaces common placeholder values with your `defaultUs
 - Detected placeholders: `user`, `your_user_id`, `user_id`, `userid`, `default`, `test`, `example`, `placeholder`
 
 **Auto-inject Configuration**
-Configuration values are automatically injected when AI doesn't provide them:
-- `orgId` → automatically added to all API calls if configured
-- `projectId` → automatically added to all API calls if configured
-- No need for AI to explicitly provide these values in tool calls
+Configuration values are selectively injected based on operation type:
+- **Write Operations** (add_memories, delete_by_filter, export): `orgId` and `projectId` are automatically injected to ensure proper scoping
+- **Read Operations** (search, get, list users): org/project are NOT injected to allow broader queries across all accessible memories
+- This design ensures you can query all your memories while new memories are created in the correct org/project
 
 ### MCP Settings
 

@@ -75,21 +75,30 @@ function getDefaultUserId() {
     return lastConfig?.defaultUserId || process.env.MEM0_DEFAULT_USER_ID;
 }
 // Helper: Auto-inject org_id and project_id from config if not provided by AI
+// Only inject if the values are explicitly configured (non-empty)
 function injectOrgProjectIds(params) {
-    // Auto-inject org_id if not provided
+    // Auto-inject org_id if not provided AND if configured
     if (!params.org_id) {
         const orgId = lastConfig?.orgId || process.env.MEM0_ORG_ID;
-        if (orgId) {
+        // Only inject if orgId is truthy and not empty string
+        if (orgId && orgId.trim().length > 0) {
             params.org_id = orgId;
         }
     }
-    // Auto-inject project_id if not provided
+    // Auto-inject project_id if not provided AND if configured
     if (!params.project_id) {
         const projectId = lastConfig?.projectId || process.env.MEM0_PROJECT_ID;
-        if (projectId) {
+        // Only inject if projectId is truthy and not empty string
+        if (projectId && projectId.trim().length > 0) {
             params.project_id = projectId;
         }
     }
+}
+// Helper: Check if filters contain any owner identifier
+function hasOwnerIdentifier(filters) {
+    if (!filters || typeof filters !== 'object')
+        return false;
+    return !!(filters.user_id || filters.agent_id || filters.app_id || filters.run_id);
 }
 function formatZodError(err) {
     if (err && err.name === 'ZodError' && Array.isArray(err.issues)) {
@@ -243,8 +252,8 @@ server.registerTool('search_memories', {
                 p.filters.user_id = defaultUserId;
             }
         }
-        // Auto-inject org_id and project_id from config
-        injectOrgProjectIds(p);
+        // Note: NOT injecting org_id/project_id for search to allow broader queries
+        // Let Mem0 API handle scope based on API key
         const validated = SearchMemoriesInputSchema.parse(p);
         const memories = await mem0.searchMemories(validated);
         const output = {
@@ -307,8 +316,8 @@ server.registerTool('get_memories', {
                 p.filters.user_id = defaultUserId;
             }
         }
-        // Auto-inject org_id and project_id from config
-        injectOrgProjectIds(p);
+        // Note: NOT injecting org_id/project_id for get to allow broader queries
+        // Let Mem0 API handle scope based on API key
         const validated = GetMemoriesInputSchema.parse(p);
         const memories = await mem0.getMemories(validated);
         const output = {
@@ -621,7 +630,7 @@ server.registerTool('delete_memories_by_filter', {
         ensureMem0();
         const p = { ...params };
         p.filters = parseMaybeJsonObject(p.filters);
-        // Auto-inject org_id and project_id from config
+        // Note: For delete operations, inject org_id/project_id to ensure proper scoping
         injectOrgProjectIds(p);
         const validated = DeleteMemoriesByFilterInputSchema.parse(p);
         const result = await mem0.deleteMemoriesByFilter(validated);
@@ -670,7 +679,7 @@ server.registerTool('create_memory_export', {
         ensureMem0();
         const p = { ...params };
         p.filters = parseMaybeJsonObject(p.filters);
-        // Auto-inject org_id and project_id from config
+        // Note: For export operations, inject org_id/project_id to ensure proper scoping
         injectOrgProjectIds(p);
         const validated = CreateMemoryExportInputSchema.parse(p);
         // Ensure filters is provided
@@ -770,8 +779,8 @@ server.registerTool('get_users', {
     try {
         ensureMem0();
         const p = { ...params };
-        // Auto-inject org_id and project_id from config
-        injectOrgProjectIds(p);
+        // Note: NOT injecting org_id/project_id to allow viewing all users
+        // Let Mem0 API handle scope based on API key
         const validated = GetUsersInputSchema.parse(p);
         const users = await mem0.getUsers(validated);
         const output = {
